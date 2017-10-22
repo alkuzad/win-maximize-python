@@ -20,3 +20,4 @@ optional arguments:
   -m MONITOR, --monitor MONITOR
                         Monitor number to maximize to
 ```
+
