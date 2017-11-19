@@ -1,16 +1,21 @@
-# What it does ?
-Move window to designed monitor number + maximize. I've written is as poor man replacement for
-https://github.com/ritchielawrence/cmdow which is detected as malware via most antyvirus programs (due to 
-window hiding abilities).
+# Win Maximize (Windows only)
+
+Finds Windows window by name (or part of it, or regex) and moves to monitor specified by monitor number or to monitor where mouse cursor is placed. Window is also maximized and placed on top.
+
+I'm using it when I work on multiple Sublime Text 3 projects and I want to switch between them easily without alt-tabbing. I've done that by monkey-patching GotoWindow plugin.
+
+I've written is as replacement for https://github.com/ritchielawrence/cmdow which is excellent but antyvirus programs detects it as malware (which it is not but ...). If you do not have agressive corporate AV installed then I suggest just using it.
 
 # Dependencies
 
-win32api libraries, can be installed via pip: `pip install pypiwin32`
+win32api libraries
 
-# Using
+Install via pip: `pip install -r requirements.txt`
+
+# Usage
 
 ```
-usage: win-max.py [-h] [-m MONITOR] [window_title [window_title ...]]
+usage: win-max.py [-h] [-m MONITOR] [-c] [window_title [window_title ...]]
 
 positional arguments:
   window_title
@@ -18,6 +23,8 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   -m MONITOR, --monitor MONITOR
-                        Monitor number to maximize to
+                        Monitor number to maximize to (if you have only 1
+                        monitor - pass 0)
+  -c, --cursor-track    Move window to monitor where cursor is located
 ```
 
