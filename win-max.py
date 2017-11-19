@@ -13,57 +13,59 @@ import win32api
 import win32console
 import win32process
 
+def mouse_position():
+    _flags, _handle, pos = win32gui.GetCursorInfo()
+    return pos
+
 class Window(object):
 
-  def __init__(self, title):
-    self.title = title
-    self._handle = None
-    self._find_window(title)
+    def __init__(self, title):
+        self.title = title
+        self._handle = None
+        self._find_window(title)
 
-  def _handle_window_entry(self, hwnd, title):
-    if self._handle is not None:
-      return
-    text = win32gui.GetWindowText(hwnd)
-    if re.match(title, text) and not self._own_console(hwnd):
-      self._handle = hwnd
-      self._break = True
+    def _handle_window_entry(self, hwnd, title):
+      if self._handle is not None:
+         return
+      text = win32gui.GetWindowText(hwnd)
+      if re.match(title, text) and not self._own_console(hwnd):
+          self._handle = hwnd
 
-  # Check if found window handle is parent process of this script
-  def _own_console(self, hwnd):
-    return os.getppid() in win32process.GetWindowThreadProcessId(hwnd)
+    # Check if found window handle is parent process of this script
+    def _own_console(self, hwnd):
+        return os.getppid() in win32process.GetWindowThreadProcessId(hwnd)
 
-  def _find_window(self, title):
-      self._handle = None
-      win32gui.EnumWindows(self._handle_window_entry, '.*{}.*'.format(title))
-      if self._handle is None:
-        raise RuntimeError("Can not find window: {}".format(title))
+    def _find_window(self, title):
+        self._handle = None
+        win32gui.EnumWindows(self._handle_window_entry, '.*{}.*'.format(title))
+        if self._handle is None:
+            raise RuntimeError("Can not find window: {}".format(title))
 
-  def move(self, x, y, width, height):
-      win32gui.MoveWindow(self._handle, x, y, width, height, 0)
+    def move(self, x, y, width, height):
+        win32gui.MoveWindow(self._handle, x, y, width, height, 0)
 
-  def maximize(self):
-      win32gui.ShowWindow(self._handle, 3) # SW_MAXIMIZE
+    def maximize(self):
+        win32gui.ShowWindow(self._handle, 3) # SW_MAXIMIZE
 
-  def foreground(self):
-      res = win32gui.SystemParametersInfo(0x2000, 0, 0x0000)
-      if res:
-          win32gui.SetForegroundWindow(win32console.GetConsoleWindow())
-      win32gui.SetForegroundWindow(self._handle)
+    def foreground(self):
+        res = win32gui.SystemParametersInfo(0x2000, 0, 0x0000)
+        if res:
+            win32gui.SetForegroundWindow(win32console.GetConsoleWindow())
+        win32gui.SetForegroundWindow(self._handle)
 
-  def set_as_main_window_for_monitor(self, monitor):
-    self.move(monitor.left, monitor.top, monitor.width, monitor.height)
-    self.maximize()
-    self.foreground()
-
+    def set_as_main_window_for_monitor(self, monitor):
+        self.move(monitor.left, monitor.top, monitor.width, monitor.height)
+        self.maximize()
+        self.foreground()
 
 class Monitor(object):
 
     def __init__(self, handle, index=None, rect=None):
         self._handle = handle
         if rect is None:
-          self.left, self.top, self.right, self.bottom = (0,0,0,0)
+            self.left, self.top, self.right, self.bottom = (0, 0, 0, 0)
         else:
-          self.left, self.top, self.right, self.bottom = rect
+            self.left, self.top, self.right, self.bottom = rect
         self.index = index
 
     @property
@@ -88,10 +90,20 @@ class MonitorCollection(object):
     def get(self, nr):
         return self.monitors[nr]
 
+    def monitor_with_cursor(self):
+        mouse_x, mouse_y = mouse_position()
+        for monitor in self.monitors:
+            if mouse_x >= monitor.left and \
+               mouse_x <= monitor.right and \
+               mouse_y >= monitor.top and \
+               mouse_y <= monitor.bottom:
+                return monitor
+
 def parse_args():
     parser = ArgumentParser()
     parser.add_argument('window_title', nargs="*")
-    parser.add_argument('-m', '--monitor', type=int, default=0, help="Monitor number to maximize to")
+    parser.add_argument('-m', '--monitor', type=int, help="Monitor number to maximize to (if you have only 1 monitor - pass 0)")
+    parser.add_argument('-c', '--cursor-track', action='store_true', default=False, help='Move window to monitor where cursor is located')
     return parser.parse_args()
 
 def main():
@@ -101,8 +113,10 @@ def main():
         raise ValueError("No window title passed")
     monitors = MonitorCollection()
     window = Window(title)
-    window.set_as_main_window_for_monitor(monitors.get(args.monitor))
-
+    if args.monitor is not None:
+        window.set_as_main_window_for_monitor(monitors.get(args.monitor))
+    elif args.cursor_track:
+        window.set_as_main_window_for_monitor(monitors.monitor_with_cursor())
 
 if __name__ == '__main__':
   main()
