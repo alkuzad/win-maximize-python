@@ -17,7 +17,7 @@ DESCRIPTION = 'Maximize window based on title, with selection of monitor'
 URL = 'https://github.com/alkuzad/win-maximize-python'
 EMAIL = 'dawid@dawidgoslawski.pl'
 AUTHOR = 'Dawid Gosławski'
-REQUIRES_PYTHON = '>=3.6.0'
+REQUIRES_PYTHON = '>=3.7.0'
 VERSION = '1.0.0'
 
 # What packages are required for this module to be executed?
