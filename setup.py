@@ -18,8 +18,8 @@ URL = 'https://github.com/alkuzad/win-maximize-python'
 EMAIL = 'dawid@dawidgoslawski.pl'
 AUTHOR = 'Dawid Gosławski'
 REQUIRES_PYTHON = '>=3.7.0'
-VERSION = '1.0.0'
 
+VERSION = None
 # What packages are required for this module to be executed?
 REQUIRED = [
     'pypiwin32 == 223'
@@ -49,7 +49,7 @@ except FileNotFoundError:
 about = {}
 if not VERSION:
     project_slug = NAME.lower().replace("-", "_").replace(" ", "_")
-    with open(os.path.join(here, project_slug, '__version__.py')) as f:
+    with open(os.path.join(here, 'src', project_slug, '__version__.py')) as f:
         exec(f.read(), about)
 else:
     about['__version__'] = VERSION
