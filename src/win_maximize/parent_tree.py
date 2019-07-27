@@ -34,8 +34,8 @@ class PROCESSENTRY32(ctypes.Structure):
     ]
 
 
-Process32First = _kernel32dll.Process32First
-Process32Next = _kernel32dll.Process32Next
+Process32FirstW = _kernel32dll.Process32FirstW
+Process32NextW = _kernel32dll.Process32NextW
 
 def parent_tree(pid: int):
     """
@@ -47,10 +47,10 @@ def parent_tree(pid: int):
 
     all_proc = {}
     try:
-        have_record = Process32First(snapshot, ctypes.byref(pe))
+        have_record = Process32FirstW(snapshot, ctypes.byref(pe))
         while have_record:
             all_proc[pe.th32ProcessID] = pe.th32ParentProcessID
-            have_record = Process32Next(snapshot, ctypes.byref(pe))
+            have_record = Process32NextW(snapshot, ctypes.byref(pe))
     finally:
         CloseHandle(snapshot)
 
